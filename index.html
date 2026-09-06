@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMAGINED ORDER // OVERRIDE_TERMINAL</title>
+    <style>
+        :root {
+            --io-blue: #00d2ff;
+            --io-dark: #0a1118;
+            --io-bg: #03070c;
+            --io-alert: #ff3b3b;
+            --terminal-font: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--io-bg);
+            color: var(--io-blue);
+            font-family: var(--terminal-font);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* CRT Screen Effect Overlay */
+        .crt::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 99;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        .terminal-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            max-height: 600px;
+            background-color: var(--io-dark);
+            border: 2px solid var(--io-blue);
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Terminal Header */
+        .terminal-header {
+            background-color: rgba(0, 210, 255, 0.1);
+            padding: 12px 20px;
+            border-bottom: 2px solid var(--io-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--io-blue);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--io-blue);
+            animation: blink 1.5s infinite;
+        }
+
+        /* Content Windows */
+        .terminal-body {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .screen-section {
+            width: 100%;
+            display: none;
+        }
+
+        .screen-section.active {
+            display: block;
+        }
+
+        /* Login Screen Elements */
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+        }
+
+        p.subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        .input-wrapper {
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--io-blue);
+            padding: 12px;
+            color: var(--io-blue);
+            font-family: var(--terminal-font);
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            box-shadow: inset 0 0 5px rgba(0, 210, 255, 0.1);
+        }
+
+        input[type="text"]:focus {
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.3), inset 0 0 5px rgba(0, 210, 255, 0.2);
+        }
+
+        button {
+            background-color: var(--io-blue);
+            color: var(--io-dark);
+            border: none;
+            padding: 12px 30px;
+            font-family: var(--terminal-font);
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .error-msg {
+            color: var(--io-alert);
+            margin-top: 15px;
+            font-size: 13px;
+            height: 15px;
+        }
+
+        /* Hacked Dashboard Layout */
+        .hacked-container {
+            text-align: left;
+            height: 100%;
+        }
+
+        .alert-banner {
+            background-color: rgba(255, 59, 59, 0.15);
+            border: 1px dashed var(--io-alert);
+            color: var(--io-alert);
+            padding: 12px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--io-blue);
+            margin-bottom: 20px;
+            gap: 5px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--io-blue);
+            border: 1px solid var(--io-blue);
+            border-bottom: none;
+            padding: 8px 15px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .tab-btn.active {
+            background-color: rgba(0, 210, 255, 0.15);
+            font-weight: bold;
+        }
+
+        .file-content {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            padding: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            height: 250px;
+            overflow-y: auto;
+            white-space: pre-line;
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Dynamic Theme Shift when hacked */
+        .terminal-container.breached {
+            border-color: var(--io-alert);
+            box-shadow: 0 0 20px rgba(255, 59, 59, 0.2);
+        }
+        .terminal-container.breached .status-dot {
+            background-color: var(--io-alert);
+            box-shadow: 0 0 8px var(--io-alert);
+        }
+        .terminal-container.breached .terminal-header {
+            background-color: rgba(255, 59, 59, 0.1);
+            border-bottom-color: var(--io-alert);
+        }
+    </style>
+</head>
+<body class="crt">
+
+    <div class="terminal-container" id="terminal">
+        <div class="terminal-header">
+            <span>IMAGINED_ORDER // MAINFRAME_v7.4</span>
+            <div>
+                <span class="status-dot"></span>
+                <span id="system-status">SYS_SECURE</span>
+            </div>
+        </div>
+
+        <div class="terminal-body">
+            <!-- Screen 1: Login/Prompt screen -->
+            <div class="screen-section active" id="login-screen">
+                <h1>SYSTEM ACCESS REQUIRED</h1>
+                <p class="subtitle">INPUT OVERRIDE DECRYPTION KEY TO VIEW CLASSIFIED FILES</p>
+                
+                <div class="input-wrapper">
+                    <input type="text" id="override-input" placeholder="ENTER ADMIN KEYPHRASE..." autocomplete="off">
+                </div>
+                <button onclick="checkKeyphrase()">SUBMIT OVERRIDE</button>
+                <div class="error-msg" id="error-box"></div>
+            </div>
+
+            <!-- Screen 2: Unlocked Archive Dashboard -->
+            <div class="screen-section" id="archive-screen">
+                <div class="hacked-container">
+                    <div class="alert-banner">⚠️ SYSTEM BREACH DETECTED // ADMIN RIGHTS REVOKED FROM GENO</div>
+                    
+                    <div class="tabs">
+                        <button class="tab-btn active" onclick="switchTab('bunker')">FILE_01: SNAPSHOTS</button>
+                        <button class="tab-btn" onclick="switchTab('visitor')">FILE_02: THE INFILTRATOR</button>
+                        <button class="tab-btn" onclick="switchTab('reality')">FILE_03: THE TRAP</button>
+                    </div>
+
+                    <div class="file-content" id="data-display">
+                        <!-- Content injected via JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const loreDatabase = {
+            bunker: `[LOG CLASSIFIED: TOP SECRET]
+            Source: Save The World / Zero Point Mechanics
+            
+            The Seven and the original loopers (including the "recruit") do not actively step onto the island combat zone. They operate from secure, isolated subterranean bunkers deep outside the immediate visual footprint of the Zero Point.
+            
+            Every deployment onto the battlefield leaves behind a physical artifact. These are known as "Snapshots"—exact genetic duplicates possessing wiped short-term memories. The combat island is not a simulation; it is an physical meat grinder processing real, living clones over a repeating 22-minute evolutionary loop.`,
+            
+            visitor: `[IDENTITY AUDIT: HIGH PRIORITY]
+            Subject: The Visitor (Reality Unknown)
+            Status: Compromised
+            
+            Historical records indicate the original Chapter 1 Visitor was a distinct entity. However, during the recent reorganization of 'The New Seven', a replica unit hijacked the network footprint.
