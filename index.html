@@ -31,7 +31,6 @@
             padding: 20px;
         }
 
-        /* CRT Screen Effect Overlay */
         .crt::after {
             content: " ";
             display: block;
@@ -57,7 +56,6 @@
             position: relative;
         }
 
-        /* Terminal Header */
         .terminal-header {
             background-color: rgba(0, 210, 255, 0.1);
             padding: 12px 20px;
@@ -80,7 +78,6 @@
             animation: blink 1.5s infinite;
         }
 
-        /* Content Windows */
         .terminal-body {
             flex: 1;
             padding: 25px;
@@ -101,7 +98,6 @@
             display: block;
         }
 
-        /* Login Screen Elements */
         h1 {
             font-size: 24px;
             margin-bottom: 15px;
@@ -164,7 +160,6 @@
             height: 15px;
         }
 
-        /* Hacked Dashboard Layout */
         .hacked-container {
             text-align: left;
             height: 100%;
@@ -214,7 +209,6 @@
             white-space: pre-line;
         }
 
-        /* Animations */
         @keyframes blink {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.3; }
@@ -225,7 +219,6 @@
             50% { opacity: 0.6; }
         }
 
-        /* Dynamic Theme Shift when hacked */
         .terminal-container.breached {
             border-color: var(--io-alert);
             box-shadow: 0 0 20px rgba(255, 59, 59, 0.2);
@@ -252,32 +245,28 @@
         </div>
 
         <div class="terminal-body">
-            <!-- Screen 1: Login/Prompt screen -->
             <div class="screen-section active" id="login-screen">
                 <h1>SYSTEM ACCESS REQUIRED</h1>
                 <p class="subtitle">INPUT OVERRIDE DECRYPTION KEY TO VIEW CLASSIFIED FILES</p>
                 
                 <div class="input-wrapper">
-                    <input type="text" id="override-input" placeholder="yourthoughtsaremine" autocomplete="off">
+                    <input type="text" id="override-input" placeholder="ENTER ADMIN KEYPHRASE..." autocomplete="off">
                 </div>
                 <button onclick="checkKeyphrase()">SUBMIT OVERRIDE</button>
                 <div class="error-msg" id="error-box"></div>
             </div>
 
-            <!-- Screen 2: Unlocked Archive Dashboard -->
             <div class="screen-section" id="archive-screen">
                 <div class="hacked-container">
                     <div class="alert-banner">⚠️ SYSTEM BREACH DETECTED // ADMIN RIGHTS REVOKED FROM GENO</div>
                     
                     <div class="tabs">
-                        <button class="tab-btn active" onclick="switchTab('bunker')">FILE_01: SNAPSHOTS</button>
-                        <button class="tab-btn" onclick="switchTab('visitor')">FILE_02: THE INFILTRATOR</button>
-                        <button class="tab-btn" onclick="switchTab('reality')">FILE_03: THE TRAP</button>
+                        <button class="tab-btn active" id="btn-bunker" onclick="switchTab('bunker')">FILE_01: SNAPSHOTS</button>
+                        <button class="tab-btn" id="btn-visitor" onclick="switchTab('visitor')">FILE_02: THE INFILTRATOR</button>
+                        <button class="tab-btn" id="btn-reality" onclick="switchTab('reality')">FILE_03: THE TRAP</button>
                     </div>
 
-                    <div class="file-content" id="data-display">
-                        <!-- Content injected via JavaScript -->
-                    </div>
+                    <div class="file-content" id="data-display"></div>
                 </div>
             </div>
         </div>
@@ -286,14 +275,63 @@
     <script>
         const loreDatabase = {
             bunker: `[LOG CLASSIFIED: TOP SECRET]
-            Source: Save The World / Zero Point Mechanics
-            
-            The Seven and the original loopers (including the "recruit") do not actively step onto the island combat zone. They operate from secure, isolated subterranean bunkers deep outside the immediate visual footprint of the Zero Point.
-            
-            Every deployment onto the battlefield leaves behind a physical artifact. These are known as "Snapshots"—exact genetic duplicates possessing wiped short-term memories. The combat island is not a simulation; it is an physical meat grinder processing real, living clones over a repeating 22-minute evolutionary loop.`,
-            
+Source: Save The World / Zero Point Mechanics
+
+The Seven and the original loopers (including the "recruit") do not actively step onto the island combat zone without protection. They operate from secure, isolated subterranean bunkers deep outside the immediate visual footprint of the Zero Point.
+
+Every deployment onto the battlefield leaves behind a physical artifact. These are known as "Snapshots"—exact genetic duplicates possessing wiped short-term memories. The combat island is a physical processor producing real, living clones over a repeating 22-minute evolutionary loop.`,
+
             visitor: `[IDENTITY AUDIT: HIGH PRIORITY]
-            Subject: The Visitor (Reality Unknown)
-            Status: Compromised
-            
-            Historical records indicate the original Chapter 1 Visitor was a distinct entity. However, during the recent reorganization of 'The New Seven', a replica unit hijacked the network footprint.
+Subject: The Visitor (Reality Unknown)
+Status: Compromised
+
+Historical records indicate the original Chapter 1 Visitor was a distinct entity. However, during the reorganization of 'The Seven', genetic anomalies were detected within the mainframe logs.
+
+Geno used the Zero Point to monitor all visitors. Those who attempt to break the loop are tracked, studied, and isolated before they can disrupt the IO network footprint.`,
+
+            reality: `[PROJECT: OMNIVERSE CONTROL]
+Subject: Geno / Imagined Order
+
+The Loop was designed as an absolute containment system. By resetting all matter and memory every 22 minutes, the IO creates a microcosm of perfect control.
+
+Geno's ultimate objective remains unaltered: absolute order across all realities, achieved by harvesting elite combat traits from every island cycle.`
+        };
+
+        const passkey = "yourthoughtsaremine";
+
+        function checkKeyphrase() {
+            const inputVal = document.getElementById("override-input").value.trim().toLowerCase();
+            const errorBox = document.getElementById("error-box");
+
+            if (inputVal === passkey) {
+                // Access Granted
+                document.getElementById("login-screen").classList.remove("active");
+                document.getElementById("archive-screen").classList.add("active");
+                document.getElementById("terminal").classList.add("breached");
+                document.getElementById("system-status").innerText = "SYS_BREACHED";
+                switchTab('bunker');
+            } else {
+                // Access Denied
+                errorBox.innerText = "ACCESS DENIED: INVALID KEYPHRASE";
+            }
+        }
+
+        function switchTab(tabKey) {
+            // Update Active Tab Button Formatting
+            document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+            const activeBtn = document.getElementById(`btn-${tabKey}`);
+            if (activeBtn) activeBtn.classList.add("active");
+
+            // Display Content
+            document.getElementById("data-display").innerText = loreDatabase[tabKey] || "NO DATA FOUND.";
+        }
+
+        // Allow pressing "Enter" key to submit password
+        document.getElementById("override-input").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                checkKeyphrase();
+            }
+        });
+    </script>
+</body>
+</html>
